@@ -1,3 +1,4 @@
-const {getArgs} = require("./utils");
+const { throughDir } = require("./utils");
+const p = require("path");
 
-console.log(getArgs())
+console.log(throughDir("."))
