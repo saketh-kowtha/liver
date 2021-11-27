@@ -1,0 +1,8 @@
+{
+    "port": 8080,
+    "cors": false,
+    "showLogs": true,
+    "enableStaticFileServer": false,
+    "allowedStaticFiles": ["js"],
+    "defaultHeaders": []
+}

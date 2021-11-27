@@ -47,13 +47,6 @@ function readFile(path) {
 
 const toJSON = JSON.parse;
 
-// function getArgs () {
-// return commandLineArgs([{
-//     name: 'port', type: Number, defaultOption: 8080
-// },{
-//     name: 'source', type: String, defaultOption: '.', alias: 'sourceFile'
-// }])
-// }
 
 function splitAndTakeLast(item, delimiter = "/mocks/") {
   return item.split(delimiter)[1];
@@ -86,18 +79,16 @@ function validateMethod(methodName) {
   return;
 }
 
-function logger(req, res, next) {
-  const end = res.end;
-  res.end = function (...args) {
-    console.log(`${req.url} ${req.method} ${res.statusCode}`);
-    res.end = end
-    res.end(...args)
-  };
-  next();
+
+
+function getConfig(rootDir){
+  const configFilePath = path.join(rootDir, "..", ".mockrc")
+  if(!isFile(configFilePath)) return {}
+  const config = toJSON(readFile(configFilePath))
+  return config
 }
 
 module.exports = {
-  // getArgs,
   readFile,
   isFile,
   isDir,
@@ -108,5 +99,5 @@ module.exports = {
   setRelativePath,
   addSlashAtFirst,
   validateMethod,
-  logger,
+  getConfig
 };
