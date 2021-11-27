@@ -48,12 +48,12 @@ function readFile(path) {
 const toJSON = JSON.parse;
 
 
-function splitAndTakeLast(item, delimiter = "/mocks/") {
-  return item.split(delimiter)[1];
+function splitAndTakeLast(item, delimiter) {
+  return item.split(`/${delimiter}/`)[1];
 }
 
-function generateRouteFromFile(item) {
-  return splitAndTakeLast(item).replace(".mock.json", "");
+function generateRouteFromFile(item, sourceFolderName) {
+  return splitAndTakeLast(item, sourceFolderName).replace(".mock.json", "");
 }
 
 function objToArray(obj) {

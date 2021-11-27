@@ -16,7 +16,7 @@ const app = express();
 const config = getConfig(__dirname);
 
 const PORT = config.port || 8080;
-const {defaultHeaders} = config
+const { defaultHeaders, sourceFolderName } = config;
 
 app.use((req, res, next) => {
   if (config.showLogs) return logger(req, res, next);
@@ -31,18 +31,20 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  const initStatic = express.static("./mocks");
+  const initStatic = express.static(`./${sourceFolderName || "mocks"}`);
   if (config.enableStaticFileServer) return initStatic(req, res, next);
   next();
 });
 
-const files = throughDir("./mocks");
+const files = throughDir(`./${sourceFolderName || "mocks"}`);
 
 files.forEach((file) => {
   file = setRelativePath(file);
   const content = readFile(file);
   const parsedContent = toJSON(content);
-  const route = addSlashAtFirst(generateRouteFromFile(file));
+  const route = addSlashAtFirst(
+    generateRouteFromFile(file, sourceFolderName || "mocks")
+  );
   parsedContent.route = route;
   createDynamicRouteFrom(parsedContent);
 });
@@ -52,9 +54,9 @@ function createDynamicRouteFrom(routeInfo) {
   const method = validateMethod(routeInfo.method);
 
   function controller(req, res) {
-    let headers = [... customHeaders]
-    if(defaultHeaders && Array.isArray(defaultHeaders))
-    headers = [...headers, ...defaultHeaders]
+    let headers = [...customHeaders];
+    if (defaultHeaders && Array.isArray(defaultHeaders))
+      headers = [...headers, ...defaultHeaders];
     headers.forEach((header) => {
       const [headerKey, headerValue] = objToArray(header);
       res.setHeader(headerKey, headerValue);
