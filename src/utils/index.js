@@ -1,9 +1,9 @@
 const fs = require("fs");
-const p = require("path");
+const path = require("path");
 // const commandLineArgs = require('command-line-args')
 
-function isFileTypeJSON(fileName){
-    return fileName && fileName.endsWith(".json")
+function isFileTypeMockJSON(fileName) {
+  return fileName && fileName.endsWith(".mock.json");
 }
 
 function throughDir(source) {
@@ -11,13 +11,14 @@ function throughDir(source) {
   function readDirSync(sourcePath) {
     const filesInCurrentDir = fs.readdirSync(sourcePath);
     filesInCurrentDir.forEach((item) => {
-      const itemWithAbsolutePath = p.join(sourcePath, item);
+      const itemWithAbsolutePath = path.join(sourcePath, item);
       if (isDir(itemWithAbsolutePath)) readDirSync(itemWithAbsolutePath);
-      else if(isFileTypeJSON(itemWithAbsolutePath))files.push(itemWithAbsolutePath);
+      else if (isFileTypeMockJSON(itemWithAbsolutePath))
+        files.push(itemWithAbsolutePath);
     });
   }
-  readDirSync(source)
-  return files
+  readDirSync(source);
+  return files;
 }
 
 function isDir(path) {
@@ -32,7 +33,7 @@ function isDir(path) {
 function isFile(path) {
   try {
     var stat = fs.lstatSync(path);
-    return stat.isDirectory();
+    return stat.isFile();
   } catch (e) {
     return false;
   }
@@ -44,7 +45,7 @@ function readFile(path) {
   return data.toString();
 }
 
-const toJSON = JSON.stringify;
+const toJSON = JSON.parse;
 
 // function getArgs () {
 // return commandLineArgs([{
@@ -54,6 +55,47 @@ const toJSON = JSON.stringify;
 // }])
 // }
 
+function splitAndTakeLast(item, delimiter = "/mocks/") {
+  return item.split(delimiter)[1];
+}
+
+function generateRouteFromFile(item) {
+  return splitAndTakeLast(item).replace(".mock.json", "");
+}
+
+function objToArray(obj) {
+  const headerKey = Object.keys(obj)[0];
+  const headerValue = obj[headerKey];
+  return [headerKey, headerValue];
+}
+
+function setRelativePath(fileName) {
+  return path.join(__dirname, "../..", fileName);
+}
+
+function addSlashAtFirst(str) {
+  return "/" + str;
+}
+
+function validateMethod(methodName) {
+  methodName = (methodName && methodName.toLocaleLowerCase()) || "get";
+  const methods = ["post", "get", "put", "delete", "head", "options"];
+  if (methods.includes(methodName)) {
+    return methodName;
+  }
+  return;
+}
+
+function logger(req, res, next) {
+  const end = res.end;
+  res.end = function (...args) {
+    console.log(`${req.url} ${req.method} ${res.statusCode}`);
+    res.end = end
+    res.end(...args)
+  };
+  next();
+}
+
 module.exports = {
   // getArgs,
   readFile,
@@ -61,4 +103,10 @@ module.exports = {
   isDir,
   toJSON,
   throughDir,
+  generateRouteFromFile,
+  objToArray,
+  setRelativePath,
+  addSlashAtFirst,
+  validateMethod,
+  logger,
 };
