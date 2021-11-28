@@ -7,14 +7,18 @@ import helmet from "helmet"
 import router from "./routes";
 import path from "path";
 import { program } from "commander";
+import { helpAction } from "./utils/actions";
+import colors from 'colors'
+
+program.version('0.0.1'.rainbow, '-v, --vers', 'output the current version');
+// program.argument('run').action(helpAction);
+program.parse()
 
 const app = express();
-
 const config = getConfig(__dirname);
-
 const PORT = config.port || 8080;
 
-program.version('0.0.1', '-v, --vers', 'output the current version');
+
 
 const {
   sourceFolderName,
@@ -43,8 +47,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.all("*", (req, res) => res.sendFile(path.resolve(__dirname + "/../static/notFound.html")));
+app.all("*", (req, res) => res.status(404).sendFile(path.resolve(__dirname + "/../static/notFound.html")));
 
 app.listen(PORT, () => {
-  console.log(`Mockserver started on port number: ${PORT}`);
+  console.log(colors.green(`Mockserver started on port number: ${PORT}`));
 });
