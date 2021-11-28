@@ -14,6 +14,7 @@ const express = require("express");
 const logger = require("./middlewares/logger");
 const cors = require("cors");
 const helmet = require("helmet");
+const router = require("./routes");
 
 const app = express();
 
@@ -22,11 +23,11 @@ const config = getConfig(__dirname);
 const PORT = config.port || 8080;
 
 const {
-  defaultHeaders,
   sourceFolderName,
   enableCors,
   corsOptions,
-  enableHelmet
+  enableHelmet,
+  namespace = ""
 } = config;
 
 app.use((req, res, next) => {
@@ -55,7 +56,7 @@ app.use((req, res, next) => {
 });
 
 
-
+app.use(`/${namespace}`, router)
 
 
 
