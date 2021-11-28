@@ -3,8 +3,10 @@
     "enableCors": false,
     "enableHelmet": true,
     "showLogs": true,
-    "enableStaticFileServer": false,
+    "enableStaticFileServer": true,
+    "alternativeStaticServerPathname": "",
     "allowedStaticFiles": ["js"],
     "defaultHeaders": [],
-    "namespace": "apis"
+    "namespace": "apis",
+    "staticFilesSuportedExtensions": []
 }

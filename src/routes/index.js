@@ -10,14 +10,9 @@ const {
   objToArray,
   getConfig,
 } = require("../utils");
+
 const router = express.Router();
-
 const config = getConfig(__dirname + "/..");
-const { defaultHeaders, sourceFolderName } = config;
-
-const files = throughDir(`./${sourceFolderName || "mocks"}`);
-
-getRouteContentAndCreate(files);
 
 function createDynamicRouteFrom(routeInfo) {
   const { response, headers: customHeaders = [], route } = routeInfo;
@@ -25,8 +20,7 @@ function createDynamicRouteFrom(routeInfo) {
 
   function controller(req, res) {
     let headers = [...customHeaders];
-    if (defaultHeaders && Array.isArray(defaultHeaders))
-      headers = [...headers, ...defaultHeaders];
+    if (defaultHeaders && Array.isArray(defaultHeaders)) headers = [...headers, ...defaultHeaders];
     headers.forEach((header) => {
       const [headerKey, headerValue] = objToArray(header);
       res.setHeader(headerKey, headerValue);
@@ -42,23 +36,25 @@ function createDynamicRouteFrom(routeInfo) {
 
   router[method](route, controller);
 }
-
 function getRouteContentAndCreate(files) {
   files.forEach((file) => {
-    file = setRelativePath(file);
-    const content = readFile(file);
+    fileWithRelativePath = setRelativePath(file);
+    const content = readFile(fileWithRelativePath);
     const parsedContent = toJSON(content);
 
     if (Array.isArray(parsedContent)) {
       return parsedContent.forEach(createDynamicRouteFrom);
     }
 
-    const route = addSlashAtFirst(
-      generateRouteFromFile(file, sourceFolderName || "mocks")
-    );
+    const route = addSlashAtFirst(generateRouteFromFile(fileWithRelativePath, sourceFolderName || "mocks"));
     if (!parsedContent.route) parsedContent.route = route;
     createDynamicRouteFrom(parsedContent);
   });
 }
+
+const { defaultHeaders, sourceFolderName } = config;
+const files = throughDir(`./${sourceFolderName || "mocks"}`);
+
+getRouteContentAndCreate(files);
 
 module.exports = router;

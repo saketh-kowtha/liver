@@ -1,15 +1,5 @@
 #! /usr/bin/env node
-const {
-  throughDir,
-  readFile,
-  generateRouteFromFile,
-  toJSON,
-  objToArray,
-  setRelativePath,
-  addSlashAtFirst,
-  validateMethod,
-  getConfig,
-} = require("./utils");
+const { readFile, getConfig, getExtensionFrom } = require("./utils");
 const express = require("express");
 const logger = require("./middlewares/logger");
 const cors = require("cors");
@@ -27,38 +17,27 @@ const {
   enableCors,
   corsOptions,
   enableHelmet,
-  namespace = ""
+  namespace = "",
+  staticFilesSuportedExtensions,
+  alternativeStaticServerPathname,
+  showLogs,
 } = config;
 
-app.use((req, res, next) => {
-  if (config.showLogs) return logger(req, res, next);
-  next();
-});
+if (showLogs) app.use(logger);
+if (enableCors) app.use(cors(corsOptions || {}));
+if (enableHelmet) app.use(helmet());
+if (alternativeStaticServerPathname) app.use(express.static(alternativeStaticServerPathname));
+if (namespace) app.use(`/${namespace}`, router);
+else app.use(`/`, router);
 
 app.use((req, res, next) => {
-  if (enableCors) {
-    return cors(corsOptions || {})(req, res, next);
-  }
+  const extension = getExtensionFrom(req.url);
+  const { enableStaticFileServer } = config;
+  const doesCurrentUrlHasSupportedExtensions = staticFilesSuportedExtensions.includes(extension);
+  if (enableStaticFileServer && doesCurrentUrlHasSupportedExtensions)
+    return express.static(`./${sourceFolderName || "mocks"}`).apply(null, req, res, next);
   next();
 });
-
-app.use((req, res, next) => {
-  if (enableHelmet) {
-    return helmet()(req, res, next);
-  }
-  next();
-});
-
-app.use((req, res, next) => {
-  const initStatic = express.static(`./${sourceFolderName || "mocks"}`);
-  if (config.enableStaticFileServer) return initStatic(req, res, next);
-  next();
-});
-
-
-app.use(`/${namespace}`, router)
-
-
 
 app.all("*", (req, res) => {
   const htmlContent = readFile(__dirname + "/../static/notFound.html");
