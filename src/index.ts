@@ -1,4 +1,4 @@
-// #! /usr/bin/env node
+#!/usr/bin/env node
 import { getConfig, getExtensionFrom } from "./utils"
 import express from "express";
 import logger from "./middlewares/logger"
@@ -6,12 +6,15 @@ import cors from "cors"
 import helmet from "helmet"
 import router from "./routes";
 import path from "path";
+import { program } from "commander";
 
 const app = express();
 
 const config = getConfig(__dirname);
 
 const PORT = config.port || 8080;
+
+program.version('0.0.1', '-v, --vers', 'output the current version');
 
 const {
   sourceFolderName,
