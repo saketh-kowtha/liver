@@ -1,6 +1,7 @@
 {
     "port": 8080,
-    "cors": false,
+    "enableCors": false,
+    "enableHelmet": true,
     "showLogs": true,
     "enableStaticFileServer": false,
     "allowedStaticFiles": ["js"],
