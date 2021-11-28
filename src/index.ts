@@ -1,11 +1,12 @@
-#! /usr/bin/env node
-const { getConfig, getExtensionFrom } = require("./utils");
-const express = require("express");
-const logger = require("./middlewares/logger");
-const cors = require("cors");
-const helmet = require("helmet");
-const router = require("./routes");
-const path = require("path");
+// #! /usr/bin/env node
+import { getConfig, getExtensionFrom } from "./utils"
+import express from "express";
+import logger from "./middlewares/logger"
+import cors from "cors"
+import helmet from "helmet"
+import router from "./routes";
+import path from "path";
+
 const app = express();
 
 const config = getConfig(__dirname);
@@ -17,7 +18,7 @@ const {
   enableCors,
   corsOptions,
   enableHelmet,
-  namespace = "",
+  namespace,
   staticFilesSuportedExtensions,
   alternativeStaticServerPathname,
   showLogs,
@@ -33,9 +34,9 @@ else app.use(`/`, router);
 app.use((req, res, next) => {
   const extension = getExtensionFrom(req.url);
   const { enableStaticFileServer } = config;
-  const doesCurrentUrlHasSupportedExtensions = staticFilesSuportedExtensions.includes(extension);
+  const doesCurrentUrlHasSupportedExtensions = staticFilesSuportedExtensions?.includes(extension);
   if (enableStaticFileServer && doesCurrentUrlHasSupportedExtensions)
-    return express.static(`./${sourceFolderName || "mocks"}`).apply(null, req, res, next);
+    return express.static(`./${sourceFolderName || "mocks"}`).call(null, req, res, next);
   next();
 });
 

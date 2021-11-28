@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express, { Request, Response } from "express";
+import {
   throughDir,
   setRelativePath,
   readFile,
@@ -9,19 +9,27 @@ const {
   validateMethod,
   objToArray,
   getConfig,
-} = require("../utils");
+} from "../utils";
 
-const router = express.Router();
+const router: any = express.Router();
 const config = getConfig(__dirname + "/..");
 const { defaultHeaders, sourceFolderName } = config;
 
-function createDynamicRouteFrom(routeInfo) {
-  const { response, headers: customHeaders = [], route } = routeInfo;
-  const method = validateMethod(routeInfo.method);
+interface RouteInfo {
+  response: string | object,
+  headers: Array<{ [key: string]: any }>,
+  route: string,
+  method: string
+}
 
-  function controller(req, res) {
-    let headers = [...customHeaders];
-    if (defaultHeaders && Array.isArray(defaultHeaders)) headers = [...headers, ...defaultHeaders];
+function createDynamicRouteFrom(routeInfo: RouteInfo) {
+  const { response, route } = routeInfo;
+  const customHeaders: Array<{ [key: string]: any }> = routeInfo.headers
+  const method: string = validateMethod(routeInfo.method);
+
+  function controller(req: Request, res: Response) {
+    let headers: Object[] = [];
+    if (defaultHeaders && Array.isArray(defaultHeaders)) headers = [...customHeaders, ...defaultHeaders];
     headers.forEach((header) => {
       const [headerKey, headerValue] = objToArray(header);
       res.setHeader(headerKey, headerValue);
@@ -37,9 +45,9 @@ function createDynamicRouteFrom(routeInfo) {
 
   router[method](route, controller);
 }
-function getRouteContentAndCreate(files) {
+function getRouteContentAndCreate(files: Array<string>) {
   files.forEach((file) => {
-    fileWithRelativePath = setRelativePath(file);
+    const fileWithRelativePath = setRelativePath(file);
     const content = readFile(fileWithRelativePath);
     const parsedContent = toJSON(content);
 
@@ -57,4 +65,4 @@ const files = throughDir(`./${sourceFolderName || "mocks"}`);
 
 getRouteContentAndCreate(files);
 
-module.exports = router;
+export default router;
