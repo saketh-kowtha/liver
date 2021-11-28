@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "tsc": "tsc",
+    "start": "node src/",
+    "dev": "npm run tsc && nodemon src/"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +18,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "helmet": "^4.6.0",
-    "jest": "^27.3.1"
+    "jest": "^27.3.1",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.5.2"
   }
 }

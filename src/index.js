@@ -1,11 +1,11 @@
 #! /usr/bin/env node
-const { readFile, getConfig, getExtensionFrom } = require("./utils");
+const { getConfig, getExtensionFrom } = require("./utils");
 const express = require("express");
 const logger = require("./middlewares/logger");
 const cors = require("cors");
 const helmet = require("helmet");
 const router = require("./routes");
-
+const path = require("path");
 const app = express();
 
 const config = getConfig(__dirname);
@@ -39,10 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.all("*", (req, res) => {
-  const htmlContent = readFile(__dirname + "/../static/notFound.html");
-  res.status(404).send(htmlContent);
-});
+app.all("*", (req, res) => res.sendFile(path.resolve(__dirname + "/../static/notFound.html")));
 
 app.listen(PORT, () => {
   console.log(`Mockserver started on port number: ${PORT}`);

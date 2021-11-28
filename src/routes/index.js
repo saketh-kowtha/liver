@@ -13,6 +13,7 @@ const {
 
 const router = express.Router();
 const config = getConfig(__dirname + "/..");
+const { defaultHeaders, sourceFolderName } = config;
 
 function createDynamicRouteFrom(routeInfo) {
   const { response, headers: customHeaders = [], route } = routeInfo;
@@ -52,7 +53,6 @@ function getRouteContentAndCreate(files) {
   });
 }
 
-const { defaultHeaders, sourceFolderName } = config;
 const files = throughDir(`./${sourceFolderName || "mocks"}`);
 
 getRouteContentAndCreate(files);
